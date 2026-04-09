@@ -1,0 +1,10 @@
+[project]
+name = "projeto-mercado"
+version = "0.1.0"
+description = "API REST de mercado para gerenciamento de produtos, construída com FastAPI, SQLite e Redis, implementando cache, filtros, paginação e otimização de desempenho."
+authors = [
+{name = "Eric", email = "ericjc16oficial@gmail.com"}
+]
+
+[tool.taskipy.tasks]
+run = 'fastapi dev src/app.py'
