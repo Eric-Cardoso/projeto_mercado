@@ -1,5 +1,8 @@
 from fastapi import FastAPI
+from routers.auth_rotas import auth_rota
+from routers.produtos_rotas import produtos_rota
 
+# Configurar o app
 app = FastAPI(
     title='projeto-mercado', 
     description='''
@@ -8,6 +11,10 @@ construída com FastAPI, SQLite e Redis, implementando cache, filtros,
 paginação e otimização de desempenho.''',
     version='0.1.0'
 )
+
+# incluir as rotas no app
+app.include_router(auth_rota)
+app.include_router(produtos_rota)
 
 @app.get('/')
 def home():
