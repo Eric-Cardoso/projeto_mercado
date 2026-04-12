@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Float
-from src.core.config.database import Base
+from core.configuracoes import Base
 
 # Criar uma tabela no banco e configurar ela
 class Usuario(Base):

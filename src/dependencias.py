@@ -1,4 +1,4 @@
-from core.config.database import Sessionlocal
+from core.configuracoes import Sessionlocal
 
 # Empresta a sessao do banco de dados sempre que necessário
 def sessao():
