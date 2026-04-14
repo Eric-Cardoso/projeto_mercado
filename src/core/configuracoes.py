@@ -18,4 +18,6 @@ Sessionlocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 Base = declarative_base()
 
 # Pega a SECRET_KEY do .env
-SECRET_KEY = os.getenv('SECRET_KEY')
+CHAVE_SECRETA = os.getenv('CHAVE_SECRETA')
+ALGORITMO = os.getenv('ALGORITMO')
+TEMPO_EXPIRACAO_TOKEN = int(os.getenv('TEMPO_EXPIRACAO_TOKEN'))

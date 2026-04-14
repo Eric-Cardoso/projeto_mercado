@@ -1,12 +1,12 @@
-from schemas.usuario import CriarUsuario
+from schemas.schema_usuario import CriarUsuario
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from models.models import Usuario
-from core.securanca import bcrypt_context, validar_senha
+from models import Usuario
+from core.seguranca import bcrypt_context, validar_senha
 from repos.repo_usuario import criar
 
-def auth_criar(
+def criar_usuario(
         usuario: CriarUsuario, sessao: Session
 ) -> Usuario:
     

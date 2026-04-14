@@ -1,8 +1,9 @@
 from fastapi import APIRouter
-from services.auth_criar import auth_criar
-from models.models import Usuario
+from services import usuario_service, auth_service
+from models import Usuario
 from fastapi import status, Depends
-from schemas.usuario import UsuarioPublico, CriarUsuario
+from schemas.schema_usuario import UsuarioPublico, CriarUsuario
+from schemas.schema_auth import LoginUsuario, TokenPublico
 from dependencias import sessao
 from sqlalchemy.orm import Session
 
@@ -23,5 +24,13 @@ def criar_usuario(
     sessao: Session = Depends(sessao)
 ) -> Usuario:
     
-    return auth_criar(usuario=usuario, sessao=sessao)
+    return usuario_service.criar_usuario(usuario=usuario, sessao=sessao)
+
+@auth_rota.post(
+        path='/login', 
+        response_model=TokenPublico, 
+        status_code=status.HTTP_200_OK
+)
+def login(usuario: LoginUsuario, sessao: Session = Depends(sessao)) -> dict:
+    return auth_service.login(usuario=usuario, sessao=sessao)
 

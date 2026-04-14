@@ -1,7 +1,9 @@
-from core.configuracoes import SECRET_KEY
+from core.configuracoes import CHAVE_SECRETA, ALGORITMO, TEMPO_EXPIRACAO_TOKEN
 from passlib.context import CryptContext
 from password_strength import PasswordPolicy
-from fastapi import HTTPException, status 
+from fastapi import HTTPException, status
+from jose import jwt
+from datetime import timedelta, timezone, datetime
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -32,3 +34,22 @@ def validar_senha(senha: str) -> None:
         )
 
     return 
+
+def gerar_token(
+        id_usuario: int, 
+        duracao_do_token: timedelta = timedelta(minutes=TEMPO_EXPIRACAO_TOKEN)
+) -> str:
+    # Pega a data atual e calcula a duração do token 
+    # de acordo com o tempo de expiração passado
+    tempo_expiracao = datetime.now(timezone.utc) + duracao_do_token
+
+    # Cria o dicionário com as informações que o token vai ter
+    dict_info = {
+        'sub': id_usuario,
+        'exp': tempo_expiracao
+    }
+    
+    # Codifica o token
+    token = jwt.encode(dict_info, CHAVE_SECRETA, ALGORITMO)
+
+    return token
