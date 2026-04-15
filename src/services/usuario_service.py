@@ -36,5 +36,19 @@ def criar_usuario(
 
     return db_usuario
 
+def obter_usuario(usuario: Usuario, sessao: Session) -> Usuario:
+    # Tenta pegar o usuário de acordo com o id
+    db_usuario = sessao.scalar(select(Usuario).where(Usuario.id == usuario.id))
+
+    # Verifica se o usuário existe
+    if not db_usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Usuário não encontrado'
+)
+    
+    return db_usuario
+    
+
 
     
