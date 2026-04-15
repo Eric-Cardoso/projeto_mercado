@@ -43,8 +43,8 @@ def obter_usuario(usuario: Usuario, sessao: Session) -> Usuario:
     # Verifica se o usuário existe
     if not db_usuario:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail='Usuário não encontrado'
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail='Credencias inválidas'
 )
     
     return db_usuario

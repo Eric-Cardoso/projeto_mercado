@@ -28,5 +28,5 @@ def criar_usuario(
 def obter_usuario(
     usuario: Usuario = Depends(verificar_token),  
     sessao: Session = Depends(sessao)
-):
+) -> Usuario:
     return usuario_service.obter_usuario(usuario=usuario, sessao=sessao)
