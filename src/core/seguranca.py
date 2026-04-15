@@ -2,10 +2,14 @@ from core.configuracoes import CHAVE_SECRETA, ALGORITMO, TEMPO_EXPIRACAO_TOKEN
 from passlib.context import CryptContext
 from password_strength import PasswordPolicy
 from fastapi import HTTPException, status
-from jose import jwt
+from jose import jwt, JWTError
 from datetime import timedelta, timezone, datetime
+from fastapi.security import OAuth2PasswordBearer
+
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+
+oauth2_schema = OAuth2PasswordBearer(tokenUrl='auth/login-form')
 
 def validar_senha(senha: str) -> None:
     # Configura os requisitos para a senha ser válida
@@ -45,7 +49,7 @@ def gerar_token(
 
     # Cria o dicionário com as informações que o token vai ter
     dict_info = {
-        'sub': id_usuario,
+        'sub': str(id_usuario),
         'exp': tempo_expiracao
     }
     
@@ -53,3 +57,4 @@ def gerar_token(
     token = jwt.encode(dict_info, CHAVE_SECRETA, ALGORITMO)
 
     return token
+
