@@ -8,4 +8,10 @@ def criar(usuario: Usuario, sessao: Session) -> Usuario:
     sessao.commit()
     # Atualiza o objeto
     sessao.refresh(usuario)
+
+def atualizar(usuario: Usuario, sessao: Session) -> Usuario:
+    # Salva as alterações
+    sessao.commit()
+    # Atualiza o objeto
+    sessao.refresh(usuario)
     

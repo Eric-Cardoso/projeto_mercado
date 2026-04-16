@@ -2,7 +2,11 @@ from fastapi import APIRouter
 from services import usuario_service
 from models import Usuario
 from fastapi import status, Depends
-from schemas.schema_usuario import UsuarioPublico, CriarUsuario
+from schemas.schema_usuario import (
+    UsuarioPublico, 
+    CriarUsuario, 
+    AtualizarUsuario
+)
 from dependencias import sessao, verificar_token
 from sqlalchemy.orm import Session
 
@@ -21,7 +25,7 @@ def criar_usuario(
     return usuario_service.criar_usuario(usuario=usuario, sessao=sessao)
 
 @usuarios_rota.get(
-    path='/eu', 
+    path='/me', 
     response_model=UsuarioPublico, 
     status_code=status.HTTP_200_OK
 )
@@ -29,4 +33,22 @@ def obter_usuario(
     usuario: Usuario = Depends(verificar_token),  
     sessao: Session = Depends(sessao)
 ) -> Usuario:
+    
     return usuario_service.obter_usuario(usuario=usuario, sessao=sessao)
+
+@usuarios_rota.patch(
+        path='/me', 
+        response_model=UsuarioPublico, 
+        status_code=status.HTTP_201_CREATED
+)
+def atualizar_usuario(
+        dados: AtualizarUsuario,
+        usuario: Usuario = Depends(verificar_token),
+        sessao: Session = Depends(sessao)
+) -> Usuario:
+    
+    return usuario_service.atualizar_dados(
+        dados=dados, 
+        usuario=usuario, 
+        sessao=sessao
+)

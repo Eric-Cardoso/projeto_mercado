@@ -11,3 +11,6 @@ class UsuarioPublico(BaseModel):
     nome: Optional[str] = None
     email: str
     senha: str
+
+class AtualizarUsuario(BaseModel):
+    nome: str = Field(..., min_length=3)

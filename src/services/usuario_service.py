@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from models import Usuario
 from core.seguranca import bcrypt_context, validar_senha
-from repos.repo_usuario import criar
+from repos.repo_usuario import criar, atualizar
+from schemas.schema_usuario import AtualizarUsuario
 
 def criar_usuario(
         usuario: CriarUsuario, sessao: Session
@@ -48,7 +49,30 @@ def obter_usuario(usuario: Usuario, sessao: Session) -> Usuario:
 )
     
     return db_usuario
+
+def atualizar_dados(
+        dados: AtualizarUsuario, 
+        usuario: Usuario,
+        sessao: Session
+):
     
+    # Pega os dados em forma de dicionário
+    dict_dados = dados.model_dump()
+    
+    # Verifica se os dados estão vazios
+    if not dict_dados:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail='Credencial inválido'
+)
+    # Atualiza os dados
+    for campo, valor in dict_dados.items():
+        setattr(usuario, campo, valor)
+    
+    # Salva no banco de dados
+    atualizar(usuario=usuario, sessao=sessao)
+    
+    return usuario
 
 
     
