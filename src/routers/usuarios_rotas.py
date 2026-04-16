@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Response
 from services import usuario_service
 from models import Usuario
 from fastapi import status, Depends
@@ -52,3 +52,13 @@ def atualizar_usuario(
         usuario=usuario, 
         sessao=sessao
 )
+
+@usuarios_rota.delete(
+    path='/me', 
+    status_code=status.HTTP_204_NO_CONTENT
+)
+def deletar_usuario(
+    usuario: Usuario = Depends(verificar_token), 
+    sessao: Session = Depends(sessao)
+) -> Response:
+    return usuario_service.deletar_usuario(usuario=usuario, sessao=sessao)

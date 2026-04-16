@@ -1,10 +1,10 @@
 from schemas.schema_usuario import CriarUsuario
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Response
 from models import Usuario
 from core.seguranca import bcrypt_context, validar_senha
-from repos.repo_usuario import criar, atualizar
+from repos import repo_usuario
 from schemas.schema_usuario import AtualizarUsuario
 
 def criar_usuario(
@@ -33,7 +33,7 @@ def criar_usuario(
     db_usuario = Usuario(**dados)
 
     # Adiciona o usuário ao banco e salva
-    criar(usuario=db_usuario, sessao=sessao)
+    repo_usuario.criar(usuario=db_usuario, sessao=sessao)
 
     return db_usuario
 
@@ -69,10 +69,13 @@ def atualizar_dados(
     for campo, valor in dict_dados.items():
         setattr(usuario, campo, valor)
     
-    # Salva no banco de dados
-    atualizar(usuario=usuario, sessao=sessao)
+    # Atualiza os dados e salva
+    repo_usuario.atualizar(usuario=usuario, sessao=sessao)
     
     return usuario
 
-
+def deletar_usuario(usuario: Usuario, sessao: Session) -> Response:
+    # Deleta o usuário do banco e salva
+    repo_usuario.deletar(usuario=usuario, sessao=sessao)
     
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
