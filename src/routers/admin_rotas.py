@@ -1,7 +1,6 @@
 from fastapi import APIRouter, status, Depends
 from services import admin_service
-from schemas.schema_usuario import UsuarioPublico
-from schemas.schema_admin import UsuariosPublicos 
+from schemas import schema_usuario, schema_admin
 from dependencias import sessao, verificar_token
 from sqlalchemy.orm import Session
 from models import Usuario
@@ -10,7 +9,7 @@ admin_rota = APIRouter(prefix='/admin', tags=['admin'])
 
 @admin_rota.get(
     path='/usuarios', 
-    response_model=UsuariosPublicos, 
+    response_model=schema_admin.UsuariosPublicos, 
     status_code=status.HTTP_200_OK
 )
 def obter_usuarios(
@@ -29,7 +28,7 @@ def obter_usuarios(
 
 @admin_rota.get(
     path='/{id_usuario}', 
-    response_model=UsuarioPublico, 
+    response_model=schema_usuario.UsuarioPublico, 
     status_code=status.HTTP_200_OK
 )
 def obter_usuario(
@@ -41,5 +40,24 @@ def obter_usuario(
     return admin_service.obter_usuario(
         id_usuario=id_usuario, 
         usuario=usuario, 
+        sessao=sessao
+)
+
+@admin_rota.put(
+    path='/{id_usuario}', 
+    response_model=schema_admin.UsuarioPublico, 
+    status_code=status.HTTP_201_CREATED
+)
+def atualizar_usuario(
+    id_usuario: int, 
+    dados: schema_admin.AtualizarUsuario,
+    usuario: Usuario = Depends(verificar_token), 
+    sessao: Session = Depends(sessao)
+) -> Usuario:
+    
+    return admin_service.atualizar_usuario(
+        id_usuario=id_usuario, 
+        usuario=usuario, 
+        dados=dados, 
         sessao=sessao
 )
