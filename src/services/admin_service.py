@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from models import Usuario
 
-
 def obter_usuario(
         id_usuario: int, 
         usuario: Usuario,  
@@ -27,5 +26,34 @@ def obter_usuario(
 )
     
     return db_usuario
+
+def obter_usuarios(
+        usuario: Usuario, 
+        sessao: Session, 
+        offset: int, 
+        limit: int
+) -> list[dict]:
+    
+    # Pega todos os usuários existentes no banco
+    db_usuarios = sessao.scalars(
+        select(Usuario).offset(offset=offset).limit(limit=limit)
+).all()
+    
+    # Verifica se o usuário é um admin
+    if not usuario.admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail='Acesso negado'
+)
+
+    # Verifica se os usuários foram encontrados
+    if not db_usuarios:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Usuários não encontrados'
+)
+    
+    return {'usuarios': db_usuarios}
+    
     
     
