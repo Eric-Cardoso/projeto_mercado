@@ -54,7 +54,7 @@ def atualizar_dados(
         dados: AtualizarUsuario, 
         usuario: Usuario,
         sessao: Session
-):
+) -> Usuario:
     
     # Pega os dados em forma de dicionário
     dict_dados = dados.model_dump()
@@ -75,6 +75,7 @@ def atualizar_dados(
     return usuario
 
 def deletar_usuario(usuario: Usuario, sessao: Session) -> Response:
+    
     # Deleta o usuário do banco e salva
     repo_usuario.deletar(usuario=usuario, sessao=sessao)
     

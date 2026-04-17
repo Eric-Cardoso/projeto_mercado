@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Response
 from models import Usuario
 from schemas.schema_admin import AtualizarUsuario
 from repos import repo_usuario
@@ -91,6 +91,33 @@ def atualizar_usuario(
     repo_usuario.atualizar(usuario=db_usuario, sessao=sessao)
 
     return db_usuario
+
+def deletar_usuario(
+        id_usuario: int, 
+        usuario: Usuario, 
+        sessao: Session
+) -> Response:
+
+    # Verifica se o usuário é um admin
+    if not usuario.admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail='Acesso negado'
+)
+    
+    # Tenta pegar o usuário de acordo com o id
+    db_usuario = sessao.scalar(select(Usuario).where(Usuario.id == id_usuario))
+
+    # Verifica se o usuário foi encontrado
+    if not db_usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Usuário não encontrado'
+)
+    # Deleta o usuário e salva
+    repo_usuario.deletar(usuario=db_usuario, sessao=sessao)
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 

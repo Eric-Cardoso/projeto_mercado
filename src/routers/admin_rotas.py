@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Response
 from services import admin_service
 from schemas import schema_usuario, schema_admin
 from dependencias import sessao, verificar_token
@@ -59,5 +59,18 @@ def atualizar_usuario(
         id_usuario=id_usuario, 
         usuario=usuario, 
         dados=dados, 
+        sessao=sessao
+)
+
+@admin_rota.delete(path='/{id_usuario}', status_code=status.HTTP_204_NO_CONTENT)
+def deletar_usuario(
+    id_usuario: int, 
+    usuario: Usuario = Depends(verificar_token), 
+    sessao: Session = Depends(sessao)
+) -> Response:
+    
+    return admin_service.deletar_usuario(
+        id_usuario=id_usuario, 
+        usuario=usuario, 
         sessao=sessao
 )
