@@ -1,7 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, status, Depends
 from services import auth_service
 from models import Usuario
-from fastapi import status, Depends
 from schemas.schema_auth import (
     TokenPublico, 
     TokenRefresh
