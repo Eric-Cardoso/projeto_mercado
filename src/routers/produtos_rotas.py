@@ -4,7 +4,11 @@ from schemas import schema_usuario, schema_admin
 from dependencias import sessao, verificar_token
 from sqlalchemy.orm import Session
 from models import Usuario, Produtos
-from schemas.schema_produto import ProdutoPublico, AdicionarProduto
+from schemas.schema_produto import (
+    ProdutoPublico, 
+    AdicionarProduto, 
+    ListarProdutos
+)
 
 
 # Configurar a rota de produtos
@@ -32,6 +36,25 @@ def adicionar_produto(
 )
 
 @produtos_rota.get(
+    path='/me', 
+    response_model=ListarProdutos, 
+    status_code=status.HTTP_200_OK
+)
+def listar_produtos(
+    usuario: Usuario = Depends(verificar_token), 
+    sessao: Session =  Depends(sessao),
+    offset: int = 0,
+    limit: int = 100
+) -> list[dict]:
+    
+    return produtos_service.listar_produtos(
+        usuario=usuario, 
+        sessao=sessao, 
+        offset=offset, 
+        limit=limit
+)
+
+@produtos_rota.get(
     path='/{id_produto}', 
     response_model=ProdutoPublico, 
     status_code=status.HTTP_200_OK
@@ -47,3 +70,4 @@ def listar_produto(
         usuario=usuario, 
         sessao=sessao
 )
+

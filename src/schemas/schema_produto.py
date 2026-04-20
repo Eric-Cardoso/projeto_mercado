@@ -16,3 +16,7 @@ class ProdutoPublico(BaseModel):
     quantidade: int
     categoria: str
     preco_unitario: float
+
+class ListarProdutos(BaseModel):
+    
+    produtos: list[ProdutoPublico]

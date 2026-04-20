@@ -25,26 +25,55 @@ def adicionar_produto(
 
     return db_produto
 
+def listar_produtos(
+        usuario: Usuario, 
+        sessao: Session, 
+        offset: int, 
+        limit: int
+) -> list[dict]:
+     
+    # Pega todos os produtos existentes no banco
+     db_produtos = sessao.scalars(
+        select(Produtos)
+        .where(Produtos.id_usuario == usuario.id)
+        .offset(offset=offset)
+        .limit(limit=limit)
+).all()
+     
+     # Verifica se algum produto foi encontrado
+     if not db_produtos:
+        raise HTTPException(
+               status_code=status.HTTP_404_NOT_FOUND, 
+               detail='Nenhum produto encontrado'
+)
+     return {'produtos': db_produtos}
+
+
 def listar_produto(
         id_produto: int, 
         usuario: Usuario, 
         sessao: Session
 ) -> Produtos:
       
+      # Tenta pegar o produtos de acordo com seu id
       db_produto = sessao.scalar(
-        select(Produtos).where(Produtos.id == id_produto)
+          select(Produtos).where(Produtos.id == id_produto)
 )
       
+      # Verifica se o produto foi encontrado
       if not db_produto: 
           raise HTTPException(
-               status_code=status.HTTP_404_NOT_FOUND, 
-               detail='Produto não encontrado'
+                status_code=status.HTTP_404_NOT_FOUND, 
+                detail='Produto não encontrado'
 )
+      
+      # Verifica se o produto é do usuário logado
       if db_produto.id_usuario != usuario.id:
-           raise HTTPException(
+          raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Acesso negado'
 )
       return db_produto
+
 
 
