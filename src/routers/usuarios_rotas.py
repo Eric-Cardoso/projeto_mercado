@@ -38,7 +38,7 @@ def obter_usuario(
 @usuarios_rota.patch(
         path='/me', 
         response_model=UsuarioPublico, 
-        status_code=status.HTTP_201_CREATED
+        status_code=status.HTTP_200_OK
 )
 def atualizar_usuario(
         dados: AtualizarUsuario,

@@ -75,5 +75,35 @@ def listar_produto(
 )
       return db_produto
 
+def atualizar_produto(
+        id_produto: int, 
+        dados: AdicionarProduto, 
+        usuario: Usuario, 
+        sessao: Session
+) -> Produtos:
+    
+    db_produto = sessao.scalar(
+        select(Produtos).where(Produtos.id == id_produto)
+)
+    
+    if not db_produto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Produto não encontrado'
+)
+    if db_produto.id_usuario != usuario.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail='Acesso negado'
+)
+    db_dados = dados.model_dump()
+
+    for campo, valor in db_dados.items():
+        setattr(db_produto, campo, valor)
+
+    repo_produtos.atualizar(produto=db_produto, sessao=sessao) 
+
+    return db_produto                                   
+
 
 

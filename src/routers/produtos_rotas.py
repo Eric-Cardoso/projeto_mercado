@@ -1,6 +1,5 @@
-from fastapi import APIRouter, status, Depends, Response
+from fastapi import APIRouter, status, Depends
 from services import produtos_service
-from schemas import schema_usuario, schema_admin
 from dependencias import sessao, verificar_token
 from sqlalchemy.orm import Session
 from models import Usuario, Produtos
@@ -70,4 +69,25 @@ def listar_produto(
         usuario=usuario, 
         sessao=sessao
 )
+
+@produtos_rota.put(
+    path='/{id_produto}', 
+    response_model=ProdutoPublico, 
+    status_code=status.HTTP_200_OK
+)
+def atualizar_produto(
+    id_produto: int, 
+    dados: AdicionarProduto, 
+    usuario: Usuario = Depends(verificar_token), 
+    sessao: Session = Depends(sessao)
+):
+    
+    return produtos_service.atualizar_produto(
+        dados=dados, 
+        id_produto=id_produto, 
+        usuario=usuario, 
+        sessao=sessao
+)
+
+
 

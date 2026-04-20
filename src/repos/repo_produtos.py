@@ -10,3 +10,11 @@ def adicionar(produto: Produtos, sessao: Session) -> None:
     
     # Atualiza o objeto
     sessao.refresh(produto)
+
+def atualizar(produto: Produtos, sessao: Session) -> None:
+    
+    # Salva as alterações
+    sessao.commit()
+    
+    # Atualiza o objeto
+    sessao.refresh(produto)

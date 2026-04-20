@@ -46,7 +46,7 @@ def obter_usuario(
 @admin_rota.put(
     path='/{id_usuario}', 
     response_model=schema_admin.UsuarioPublico, 
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_200_OK
 )
 def atualizar_usuario(
     id_usuario: int, 
