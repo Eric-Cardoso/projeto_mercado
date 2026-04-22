@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Response
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from models import Usuario, Produto
@@ -118,6 +118,7 @@ def atualizar_produto_parcial(
         sessao: Session
 ) -> Produto:
     
+    # Tenta pegar o produto de acordo com o id
     db_produto = sessao.scalar(
         select(Produto).where(Produto.id == id_produto)
 )
@@ -134,7 +135,7 @@ def atualizar_produto_parcial(
             detail='Acesso negado'
 )
     
-    # Pega os daods em forma de dict
+    # Pega os dados em forma de dict
     db_dados = dados.model_dump(exclude_unset=True)
 
     # Atualiza os dados do produto
@@ -145,6 +146,37 @@ def atualizar_produto_parcial(
     repo_produtos.atualizar(produto=db_produto, sessao=sessao)
 
     return db_produto
+
+def deletar_produto(
+        id_produto: int, 
+        usuario: Usuario, 
+        sessao: Session
+    ) -> Response:
+    
+    # Tenta pegar o produto de acordo com o id
+    db_produto = sessao.scalar(select(Produto).where(Produto.id == id_produto))
+
+    
+    # Verifica se o produto foi encontrado
+    if not db_produto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Produto não encontrado'
+    )
+
+    
+    # Verifica se o produto pertence ao usuário logado
+    if db_produto.id_carrinho != usuario.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail='Acesso negado'
+)
+    # Deleta o produto e salva
+    repo_produtos.deletar(produto=db_produto, sessao=sessao)
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 
 
 

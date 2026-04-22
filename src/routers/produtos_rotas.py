@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Response
 from services import produtos_service
 from dependencias import sessao, verificar_token
 from sqlalchemy.orm import Session
@@ -108,5 +108,18 @@ def atualizar_produto_parcial(
         usuario=usuario, 
         sessao=sessao)
 
-
-
+@produtos_rota.delete(
+    path='/{id_produto}', 
+    status_code=status.HTTP_204_NO_CONTENT
+)
+def deletar_produto(
+    id_produto: int, 
+    usuario: Usuario = Depends(verificar_token), 
+    sessao: Session = Depends(sessao)
+) -> Response:
+    
+    return produtos_service.deletar_produto(
+        id_produto=id_produto, 
+        usuario=usuario, 
+        sessao=sessao
+    )

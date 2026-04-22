@@ -18,3 +18,11 @@ def atualizar(produto: Produto, sessao: Session) -> None:
     
     # Atualiza o objeto
     sessao.refresh(produto)
+
+def deletar(produto: Produto, sessao: Session) -> None:
+    
+    # Deleta o usuário do banco
+    sessao.delete(produto)
+    
+    # Salva as alterações
+    sessao.commit()
