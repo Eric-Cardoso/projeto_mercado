@@ -7,4 +7,4 @@ authors = [
 ]
 
 [tool.taskipy.tasks]
-run = 'fastapi dev src/app.py'
+run = 'fastapi dev app.py'

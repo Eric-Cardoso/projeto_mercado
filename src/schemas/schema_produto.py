@@ -11,7 +11,7 @@ class AdicionarProduto(BaseModel):
 class ProdutoPublico(BaseModel):
     
     id: int
-    id_usuario: int
+    id_carrinho: int
     nome: str
     quantidade: int
     categoria: str
@@ -20,3 +20,10 @@ class ProdutoPublico(BaseModel):
 class ListarProdutos(BaseModel):
     
     produtos: list[ProdutoPublico]
+
+class AtualizarProdutoParcial(BaseModel):
+    
+    nome: Optional[str] = None
+    quantidade: Optional[int] = None
+    categoria: Optional[str] = None
+    preco_unitario: Optional[float] = None

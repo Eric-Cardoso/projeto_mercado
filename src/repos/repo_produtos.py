@@ -1,7 +1,7 @@
-from models import Produtos
+from models import Produto
 from sqlalchemy.orm import Session
 
-def adicionar(produto: Produtos, sessao: Session) -> None:
+def adicionar(produto: Produto, sessao: Session) -> None:
     # Adiciona o produto ao banco
     sessao.add(produto)
     
@@ -11,7 +11,7 @@ def adicionar(produto: Produtos, sessao: Session) -> None:
     # Atualiza o objeto
     sessao.refresh(produto)
 
-def atualizar(produto: Produtos, sessao: Session) -> None:
+def atualizar(produto: Produto, sessao: Session) -> None:
     
     # Salva as alterações
     sessao.commit()

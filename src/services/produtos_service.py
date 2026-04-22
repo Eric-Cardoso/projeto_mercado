@@ -1,24 +1,24 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from models import Usuario, Produtos
+from models import Usuario, Produto
 from repos import repo_produtos
-from schemas.schema_produto import AdicionarProduto
+from schemas.schema_produto import AdicionarProduto, AtualizarProdutoParcial
 
 def adicionar_produto(
         dados: AdicionarProduto, 
         usuario: Usuario, 
         sessao: Session
-) -> Produtos:
+) -> Produto:
     
     # Pega os dados em forma de dicionário
     db_dados = dados.model_dump()
 
     # Define a qual usuário o produto pertence
-    db_dados['id_usuario'] = usuario.id
+    db_dados['id_carrinho'] = usuario.id
 
     # Pega os dados em forma de objeto
-    db_produto = Produtos(**db_dados)
+    db_produto = Produto(**db_dados)
 
     # Adiciona o produto ao banco e salva
     repo_produtos.adicionar(produto=db_produto, sessao=sessao)
@@ -34,8 +34,8 @@ def listar_produtos(
      
     # Pega todos os produtos existentes no banco
      db_produtos = sessao.scalars(
-        select(Produtos)
-        .where(Produtos.id_usuario == usuario.id)
+        select(Produto)
+        .where(Produto.id_carrinho == usuario.id)
         .offset(offset=offset)
         .limit(limit=limit)
 ).all()
@@ -53,11 +53,11 @@ def listar_produto(
         id_produto: int, 
         usuario: Usuario, 
         sessao: Session
-) -> Produtos:
+) -> Produto:
       
       # Tenta pegar o produtos de acordo com seu id
       db_produto = sessao.scalar(
-          select(Produtos).where(Produtos.id == id_produto)
+          select(Produto).where(Produto.id == id_produto)
 )
       
       # Verifica se o produto foi encontrado
@@ -68,7 +68,7 @@ def listar_produto(
 )
       
       # Verifica se o produto é do usuário logado
-      if db_produto.id_usuario != usuario.id:
+      if db_produto.id_carrinho != usuario.id:
           raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail='Acesso negado'
@@ -80,30 +80,71 @@ def atualizar_produto(
         dados: AdicionarProduto, 
         usuario: Usuario, 
         sessao: Session
-) -> Produtos:
+) -> Produto:
     
+    # Tenta pegar o produto de acordo com o id
     db_produto = sessao.scalar(
-        select(Produtos).where(Produtos.id == id_produto)
+        select(Produto).where(Produto.id == id_produto)
 )
     
+    # Verifica se o produto foi encontrado
     if not db_produto:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
             detail='Produto não encontrado'
 )
-    if db_produto.id_usuario != usuario.id:
+    # Verifica se o produto pertence ao usuário logado
+    if db_produto.id_carrinho != usuario.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail='Acesso negado'
 )
+    # Pega os dados em forma de json
     db_dados = dados.model_dump()
 
+    # Atualiza os dados do produto
     for campo, valor in db_dados.items():
         setattr(db_produto, campo, valor)
 
+    # Atualiza os dados e salva
     repo_produtos.atualizar(produto=db_produto, sessao=sessao) 
 
-    return db_produto                                   
+    return db_produto 
+
+def atualizar_produto_parcial(
+        id_produto: int, 
+        dados: AtualizarProdutoParcial, 
+        usuario: Usuario, 
+        sessao: Session
+) -> Produto:
+    
+    db_produto = sessao.scalar(
+        select(Produto).where(Produto.id == id_produto)
+)
+    # Verifica se o produto foi encontrado
+    if not db_produto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Produto não encontrado'
+)
+    # Verifica se o produto pertence ao usuário logado
+    if db_produto.id_carrinho != usuario.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail='Acesso negado'
+)
+    db_dados = dados.model_dump(exclude_unset=True)
+
+    teste = {}
+    for k, v in db_dados.items():
+        teste[k] = v
+
+    for campo, valor in teste.items():
+        setattr(db_produto, campo, valor)
+
+    repo_produtos.atualizar(produto=db_produto, sessao=sessao)
+
+    return db_produto
 
 
 
