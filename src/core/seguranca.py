@@ -2,10 +2,12 @@ from core.configuracoes import CHAVE_SECRETA, ALGORITMO, TEMPO_EXPIRACAO_TOKEN
 from passlib.context import CryptContext
 from password_strength import PasswordPolicy
 from fastapi import HTTPException, status
-from jose import jwt, JWTError
+from jose import jwt
 from datetime import timedelta, timezone, datetime
 from fastapi.security import OAuth2PasswordBearer
-
+from models import Produto
+from sqlalchemy.orm import Session
+from schemas.schema_produto import AtualizarProdutoParcial
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -57,4 +59,7 @@ def gerar_token(
     token = jwt.encode(dict_info, CHAVE_SECRETA, ALGORITMO)
 
     return token
+
+
+    
 

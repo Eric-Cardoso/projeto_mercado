@@ -99,7 +99,7 @@ def atualizar_produto(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail='Acesso negado'
 )
-    # Pega os dados em forma de json
+    # Pega os dados em forma de dict
     db_dados = dados.model_dump()
 
     # Atualiza os dados do produto
@@ -133,15 +133,15 @@ def atualizar_produto_parcial(
             status_code=status.HTTP_403_FORBIDDEN, 
             detail='Acesso negado'
 )
+    
+    # Pega os daods em forma de dict
     db_dados = dados.model_dump(exclude_unset=True)
 
-    teste = {}
-    for k, v in db_dados.items():
-        teste[k] = v
-
-    for campo, valor in teste.items():
+    # Atualiza os dados do produto
+    for campo, valor in db_dados.items():
         setattr(db_produto, campo, valor)
 
+    # Atualiza os dados e salva
     repo_produtos.atualizar(produto=db_produto, sessao=sessao)
 
     return db_produto
