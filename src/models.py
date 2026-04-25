@@ -31,7 +31,7 @@ class Carrinho(Base):
 
     def calcular_preco(self):
         self.preco_total = sum(
-                produto.quantidade * produto.preco_unitario - produto.desconto 
+                produto.quantidade * produto.preco_unitario - produto.desconto
                 for produto in self.produtos
         )
     
