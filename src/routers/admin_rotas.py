@@ -3,7 +3,7 @@ from services import admin_service
 from schemas import schema_usuario, schema_admin, schema_produto
 from dependencias import sessao, verificar_token
 from sqlalchemy.orm import Session
-from models import Usuario
+from models import Usuario, Produto
 
 admin_rota = APIRouter(prefix='/admin', tags=['admin'])
 
@@ -25,6 +25,26 @@ def obter_usuarios(
         limit=limit, 
         sessao=sessao
 )
+
+@admin_rota.get(
+        path='/produtos/{id_usuario}', 
+        response_model=schema_produto.ListarProdutos, 
+        status_code=status.HTTP_200_OK
+    )
+def listar_produtos(
+    id_usuario: int, 
+    usuario: Usuario = Depends(verificar_token), 
+    sessao: Session = Depends(sessao), 
+    offset: int = 0, 
+    limit: int = 100
+) -> list[schema_produto.ListarProdutos]:
+    
+    return admin_service.listar_produtos(
+        id_usuario=id_usuario, 
+        usuario=usuario, 
+        sessao=sessao, 
+        offset=offset, limit=limit
+    )
 
 
 @admin_rota.get(
@@ -50,12 +70,13 @@ def obter_usuario(
         response_model=schema_produto.ProdutoPublico, 
         status_code=status.HTTP_200_OK
     )
-def listar_produtos(
+def listar_produto(
     id_usuario: int, 
     id_produto: int,
     usuario: Usuario = Depends(verificar_token), 
     sessao: Session = Depends(sessao)
-):
+) -> Produto:
+    
     return admin_service.listar_produto(
         id_usuario=id_usuario, 
         id_produto=id_produto, 
