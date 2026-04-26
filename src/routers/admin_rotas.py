@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, Depends, Response
 from services import admin_service
-from schemas import schema_usuario, schema_admin
+from schemas import schema_usuario, schema_admin, schema_produto
 from dependencias import sessao, verificar_token
 from sqlalchemy.orm import Session
 from models import Usuario
@@ -26,6 +26,7 @@ def obter_usuarios(
         sessao=sessao
 )
 
+
 @admin_rota.get(
     path='/{id_usuario}', 
     response_model=schema_usuario.UsuarioPublico, 
@@ -42,6 +43,26 @@ def obter_usuario(
         usuario=usuario, 
         sessao=sessao
 )
+
+
+@admin_rota.get(
+        path='/{id_usuario}/{id_produto}', 
+        response_model=schema_produto.ProdutoPublico, 
+        status_code=status.HTTP_200_OK
+    )
+def listar_produtos(
+    id_usuario: int, 
+    id_produto: int,
+    usuario: Usuario = Depends(verificar_token), 
+    sessao: Session = Depends(sessao)
+):
+    return admin_service.listar_produto(
+        id_usuario=id_usuario, 
+        id_produto=id_produto, 
+        usuario=usuario, 
+        sessao=sessao
+    )
+
 
 @admin_rota.put(
     path='/{id_usuario}', 
@@ -61,6 +82,7 @@ def atualizar_usuario(
         dados=dados, 
         sessao=sessao
 )
+
 
 @admin_rota.delete(path='/{id_usuario}', status_code=status.HTTP_204_NO_CONTENT)
 def deletar_usuario(

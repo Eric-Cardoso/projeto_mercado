@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Response
-from models import Usuario
+from models import Usuario, Carrinho, Produto
 from schemas.schema_admin import AtualizarUsuario
 from repos import repo_usuario
 
@@ -119,6 +119,46 @@ def deletar_usuario(
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+def listar_produto(
+        id_usuario: int,
+        id_produto: int,
+        usuario: Usuario, 
+        sessao: Session
+):
+    
+    # Verifica se o usuário logado é admin
+    if not usuario.admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail='Acesso negado'
+        )
+    
+    # Tenta pegar o usuário através do id
+    db_usuario = sessao.scalar(select(Usuario).where(Usuario.id == id_usuario))
+
+    # Verifica se o usuário foi encontrado
+    if not db_usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Usuário não encontrado'
+)
+    # Tenta pegar o carrinho do usuário
+    db_carrinho = sessao.scalar(
+        select(Carrinho).where(Carrinho.id_usuario == db_usuario.id)
+)
+    
+    # Tenta pegar o produto no carrinho do usuário de acordo com o id
+    db_produto = sessao.scalar(
+        select(Produto).where(Produto.id == id_produto)
+)
+    # Verifica se o carrinho ou o produto foi encontrado
+    if not db_carrinho or not db_produto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Nenhum produto encontrado'
+)
+    return db_produto
+    
 
 
 
