@@ -16,3 +16,8 @@ class UsuarioPublico(BaseModel):
     senha: str
     ativo: bool
     admin: bool
+
+class AtualizarProduto(BaseModel):
+    categoria: Optional[str] = None
+    preco_unitario: Optional[float] = None
+    desconto: Optional[float] = None

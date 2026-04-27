@@ -104,6 +104,27 @@ def atualizar_usuario(
         sessao=sessao
 )
 
+@admin_rota.patch(
+        path='/{id_usuario}/{id_produto}', 
+        response_model=schema_produto.ProdutoPublico, 
+        status_code=status.HTTP_200_OK
+    )
+def atualizar_produto(
+    id_usuario: int, 
+    id_produto: int, 
+    dados: schema_admin.AtualizarProduto, 
+    usuario: Usuario = Depends(verificar_token), 
+    sessao: Session = Depends(sessao)
+    ) -> schema_produto.ProdutoPublico:
+
+    return admin_service.atualizar_produto(
+        id_usuario=id_usuario, 
+        id_produto=id_produto, 
+        usuario=usuario, 
+        dados=dados, 
+        sessao=sessao
+    )
+
 
 @admin_rota.delete(path='/{id_usuario}', status_code=status.HTTP_204_NO_CONTENT)
 def deletar_usuario(

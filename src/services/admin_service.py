@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Response
 from models import Usuario, Carrinho, Produto
 from schemas import schema_admin, schema_produto
-from repos import repo_usuario
+from repos import repo_usuario, repo_produtos
 
 def obter_usuario(
         id_usuario: int, 
@@ -212,6 +212,73 @@ def listar_produtos(
     return {
         'produtos': db_produtos
     }
+
+def atualizar_produto(
+        id_usuario: int, 
+        id_produto: int,
+        dados: schema_admin.AtualizarProduto,
+        usuario: Usuario, 
+        sessao: Session
+    ) -> schema_produto.ProdutoPublico:
+
+    # Verifica se o usuário logado é admin
+    if not usuario.admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail='Acesso negado'
+        )
+    
+    # Tenta pegar o usuário através do id
+    db_usuario = sessao.scalar(select(Usuario).where(Usuario.id == id_usuario))
+
+    # Verifica se o usuário foi encontrado
+    if not db_usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Usuário não encontrado'
+        )
+    
+    # Tenta pegar o carrinho do usuário
+    db_carrinho = sessao.scalar(
+        select(Carrinho).where(Carrinho.id_usuario == db_usuario.id)
+    )
+    
+    # Verifica se o carrinho foi encontrado
+    if not db_carrinho:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Carrinho não encontrado'
+        )
+    
+    # Tenta pegar o produto do usuário através do id
+    db_produto = sessao.scalar(
+        select(Produto).where(Produto.id == id_produto)
+    )
+
+    # Verifica se o produto foi encontrado
+    if not db_produto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Produto não encontrado'
+        )
+    
+    # Pega os dados em forma de dict
+    db_dados = dados.model_dump(exclude_unset=True)
+
+    # Atualiza os dados do produto
+    for campo, valor in db_dados.items():
+        setattr(db_produto, campo, valor)
+
+    # Calcula o valor total do preço do produto
+    db_carrinho.calcular_preco()
+
+    # Calcula o valor total do desconto
+    db_carrinho.calcular_desconto()
+    
+    # Atualiza os dados e salva
+    repo_produtos.atualizar(produto=db_produto, sessao=sessao)
+
+    return db_produto
     
     
 
