@@ -125,6 +125,24 @@ def atualizar_produto(
         sessao=sessao
     )
 
+@admin_rota.delete(
+        path='/{id_usuario}/{id_produto}', 
+        status_code=status.HTTP_204_NO_CONTENT
+    )
+def deletar_produto(
+        id_usuario: int, 
+        id_produto: int, 
+        usuario: Usuario = Depends(verificar_token), 
+        sessao: Session = Depends(sessao)
+    ) -> Response:
+    
+    return admin_service.deletar_produto(
+        id_usuario=id_usuario, 
+        id_produto=id_produto, 
+        usuario=usuario, 
+        sessao=sessao
+    )
+
 
 @admin_rota.delete(path='/{id_usuario}', status_code=status.HTTP_204_NO_CONTENT)
 def deletar_usuario(

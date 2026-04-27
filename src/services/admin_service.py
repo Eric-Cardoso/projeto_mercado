@@ -147,16 +147,31 @@ def listar_produto(
         select(Carrinho).where(Carrinho.id_usuario == db_usuario.id)
 )
     
+    # Verifica se o carrinho foi encontrado
+    if not db_carrinho:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Carrinho não encontrado'
+        )
+    
     # Tenta pegar o produto no carrinho do usuário de acordo com o id
     db_produto = sessao.scalar(
         select(Produto).where(Produto.id == id_produto)
 )
     # Verifica se o carrinho ou o produto foi encontrado
-    if not db_carrinho or not db_produto:
+    if not db_produto:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
             detail='Nenhum produto encontrado'
 )
+    
+    # Verifica se o produto pertence ao usuário buscado
+    if db_produto.id_carrinho != db_carrinho.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail='Acesso negado'
+        )
+
     return db_produto
 
 def listar_produtos(
@@ -262,6 +277,14 @@ def atualizar_produto(
             detail='Produto não encontrado'
         )
     
+    
+    # Verifica se o produto pertence ao usuário buscado
+    if db_produto.id_carrinho != db_carrinho.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail='Acesso negado'
+        )
+    
     # Pega os dados em forma de dict
     db_dados = dados.model_dump(exclude_unset=True)
 
@@ -279,6 +302,78 @@ def atualizar_produto(
     repo_produtos.atualizar(produto=db_produto, sessao=sessao)
 
     return db_produto
+
+def deletar_produto(
+        id_usuario: int, 
+        id_produto: int,
+        usuario: Usuario, 
+        sessao: Session
+    ) -> Response:
+
+    # Verifica se o usuário logado é admin
+    if not usuario.admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail='Acesso negado'
+        )
+    
+    # Tenta pegar o usuário através do id
+    db_usuario = sessao.scalar(select(Usuario).where(Usuario.id == id_usuario))
+
+    # Verifica se o usuário foi encontrado
+    if not db_usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Usuário não encontrado'
+        )
+    
+    # Tenta pegar o carrinho do usuário
+    db_carrinho = sessao.scalar(
+        select(Carrinho).where(Carrinho.id_usuario == db_usuario.id)
+    )
+    
+    # Verifica se o carrinho foi encontrado
+    if not db_carrinho:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Carrinho não encontrado'
+        )
+    
+    # Tenta pegar o produto do usuário através do id
+    db_produto = sessao.scalar(
+        select(Produto).where(Produto.id == id_produto)
+    )
+
+    # Verifica se o produto foi encontrado
+    if not db_produto:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Produto não encontrado'
+        )
+    
+    # Verifica se o produto pertence ao usuário buscado
+    if db_produto.id_carrinho != db_carrinho.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail='Acesso negado'
+        )
+    
+    # Remove o produto do carrinho
+    db_carrinho.produtos.remove(db_produto)
+
+    # Deleta o produto
+    sessao.delete(db_produto)
+    
+    # Calcula o valor total do preço do produto
+    db_carrinho.calcular_preco()
+
+    # Calcula o valor total do desconto
+    db_carrinho.calcular_desconto()
+
+    # Salva no banco
+    sessao.commit()
+    
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
     
     
 
