@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from schemas.schema_produto import ProdutoPublico
 
 class CarrinhoPublico(BaseModel):
 
@@ -9,3 +9,7 @@ class CarrinhoPublico(BaseModel):
     desconto_total: float
     preco_total: float
     quantidade_produtos: int
+
+class ListarCarrinho(BaseModel):
+    carrinho: CarrinhoPublico
+    produtos: list[ProdutoPublico]
