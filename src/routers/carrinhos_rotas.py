@@ -26,7 +26,7 @@ def listar_carrinho(
         limit=limit
     )
 
-@carrinho_rota.get(
+@carrinho_rota.patch(
         path='/me/cancelar', 
         response_model=ListarCarrinho, 
         status_code=status.HTTP_200_OK
@@ -36,9 +36,28 @@ def cancelar_compra(
         sessao: Session = Depends(sessao), 
         offset: int = 0, 
         limit: int = 100
-    ):
+    ) -> ListarCarrinho:
 
     return carrinho_service.cancelar_compra(
+        usuario=usuario, 
+        sessao=sessao, 
+        offset=offset, 
+        limit=limit
+    )
+
+@carrinho_rota.patch(
+        path='/me/finalizar', 
+        response_model=ListarCarrinho, 
+        status_code=status.HTTP_200_OK
+    )
+def finalizar_compra(
+        usuario: Usuario = Depends(verificar_token),
+        sessao: Session = Depends(sessao), 
+        offset: int = 0, 
+        limit: int = 100
+    ) -> ListarCarrinho:
+
+    return carrinho_service.finalizar_compra(
         usuario=usuario, 
         sessao=sessao, 
         offset=offset, 

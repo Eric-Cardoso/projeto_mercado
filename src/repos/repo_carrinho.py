@@ -11,3 +11,11 @@ def criar(carrinho: Carrinho, sessao: Session) -> None:
     
     # Atualiza o objeto
     sessao.refresh(carrinho)
+
+def atualizar(carrinho: Carrinho, sessao: Session) -> None:
+
+    # Salva as alterações
+    sessao.commit()
+
+    # Atualiza o objeto
+    sessao.refresh(carrinho)
