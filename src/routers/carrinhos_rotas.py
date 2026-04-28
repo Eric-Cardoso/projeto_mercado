@@ -25,3 +25,22 @@ def listar_carrinho(
         offset=offset,
         limit=limit
     )
+
+@carrinho_rota.get(
+        path='/me/cancelar', 
+        response_model=ListarCarrinho, 
+        status_code=status.HTTP_200_OK
+    )
+def cancelar_compra(
+        usuario: Usuario = Depends(verificar_token),
+        sessao: Session = Depends(sessao), 
+        offset: int = 0, 
+        limit: int = 100
+    ):
+
+    return carrinho_service.cancelar_compra(
+        usuario=usuario, 
+        sessao=sessao, 
+        offset=offset, 
+        limit=limit
+    )
