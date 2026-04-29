@@ -1,6 +1,11 @@
 from fastapi import APIRouter, status, Depends, Response
 from services import admin_service
-from schemas import schema_usuario, schema_admin, schema_produto
+from schemas import (
+    schema_usuario, 
+    schema_admin, 
+    schema_produto, 
+    schema_carrinho
+    )
 from dependencias import sessao, verificar_token
 from sqlalchemy.orm import Session
 from models import Usuario, Produto
@@ -64,6 +69,27 @@ def obter_usuario(
         sessao=sessao
 )
 
+
+@admin_rota.get(
+        path='/carrinho/{id_usuario}', 
+        response_model=schema_carrinho.ListarCarrinho, 
+        status_code=status.HTTP_200_OK
+    )
+def listar_carrinho(
+        id_usuario: int, 
+        usuario: Usuario = Depends(verificar_token), 
+        sessao: Session = Depends(sessao), 
+        offset: int = 0, 
+        limit: int = 100
+    ) -> schema_carrinho.ListarCarrinho:
+
+    return admin_service.listar_carrinho(
+        id_usuario=id_usuario, 
+        usuario=usuario, 
+        sessao=sessao, 
+        offset=offset, 
+        limit=limit
+    )
 
 @admin_rota.get(
         path='/{id_usuario}/{id_produto}', 
