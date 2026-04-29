@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Response
 from models import Usuario, Carrinho, Produto
 from schemas import schema_admin, schema_produto, schema_carrinho
-from repos import repo_usuario, repo_produtos
+from repos import repo_usuario, repo_produtos, repo_carrinho
 
 def obter_usuario(
         id_usuario: int, 
@@ -422,6 +422,65 @@ def listar_carrinho(
     
     # Quantidade de produtos que tem no carrinho
     db_carrinho.quantidade_produtos = len(db_produtos)
+    
+    return {
+        'carrinho': db_carrinho,
+        'produtos': db_produtos
+    }
+
+def cancelar_compra(
+        id_usuario: int, 
+        usuario: Usuario, 
+        sessao: Session, 
+        offset: int, 
+        limit: int
+    ) -> schema_carrinho.ListarCarrinho:
+    
+    # Verifica se o usuário logado é admin
+    if not usuario.admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail='Acesso negado'
+        )
+    
+    # Tenta pegar o usuário através do id
+    db_usuario = sessao.scalar(select(Usuario).where(Usuario.id == id_usuario))
+
+    # Verifica se o usuário foi encontrado
+    if not db_usuario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Usuário não encontrado'
+        )
+    
+    # Tenta pegar o carrinho do usuario logado
+    db_carrinho = sessao.scalar(
+        select(Carrinho).where(Carrinho.id_usuario == db_usuario.id)
+    )
+
+    # Verifica se o carrinho foi encontrado
+    if not db_carrinho:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail='Carrinho não encontrado. Adicione um produto para criar um.'
+        )
+    
+    # Pega todos os produtos existentes no banco
+    db_produtos = sessao.scalars(
+        select(Produto)
+        .where(Produto.id_carrinho == db_carrinho.id)
+        .offset(offset=offset)
+        .limit(limit=limit)
+    ).all()
+    
+    # Quantidade de produtos que tem no carrinho
+    db_carrinho.quantidade_produtos = len(db_produtos)
+
+    # Muda o status do carrinho para cancelado
+    db_carrinho.status = 'CANCELADO'
+
+    # Atualiza o status do carrinho e salva
+    repo_carrinho.atualizar(carrinho=db_carrinho, sessao=sessao)
     
     return {
         'carrinho': db_carrinho,

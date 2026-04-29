@@ -69,6 +69,27 @@ def obter_usuario(
         sessao=sessao
 )
 
+@admin_rota.patch(
+        path='/carrinho/cancelar/{id_usuario}', 
+        response_model=schema_carrinho.ListarCarrinho, 
+        status_code=status.HTTP_200_OK
+    )
+def cancelar_compra(
+        id_usuario: int, 
+        usuario: Usuario = Depends(verificar_token), 
+        sessao: Session = Depends(sessao), 
+        offset: int = 0, 
+        limit: int = 100
+    ) -> schema_carrinho.ListarCarrinho:
+
+    return admin_service.cancelar_compra(
+        id_usuario=id_usuario, 
+        usuario=usuario, 
+        sessao=sessao, 
+        offset=offset, 
+        limit=limit
+    )
+
 
 @admin_rota.get(
         path='/carrinho/{id_usuario}', 
