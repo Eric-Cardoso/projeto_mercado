@@ -4,6 +4,7 @@ from fastapi import HTTPException, status, Response
 from models import Usuario, Carrinho, Produto
 from schemas import schema_admin, schema_produto, schema_carrinho
 from repos import repo_usuario, repo_produtos, repo_carrinho
+from services import produtos_service
 
 def obter_usuario(
         id_usuario: int, 
@@ -291,6 +292,9 @@ def atualizar_produto(
     # Atualiza os dados do produto
     for campo, valor in db_dados.items():
         setattr(db_produto, campo, valor)
+
+    # Calcula o desconto do produto
+    produtos_service.aplicar_desconto(produto=db_produto)
 
     # Calcula o valor total do preço do produto
     db_carrinho.calcular_preco()

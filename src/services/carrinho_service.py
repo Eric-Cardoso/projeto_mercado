@@ -44,6 +44,9 @@ def listar_carrinho(
     
     # Quantidade de produtos que tem no carrinho
     db_carrinho.quantidade_produtos = len(db_produtos)
+
+    # Atualiza o status do carrinho e salva
+    repo_carrinho.atualizar(carrinho=db_carrinho, sessao=sessao)
     
     return {
         'carrinho': db_carrinho,

@@ -16,6 +16,7 @@ class ProdutoPublico(BaseModel):
     quantidade: int
     categoria: str
     preco_unitario: float
+    desconto: float
 
 class ListarProdutos(BaseModel):
     

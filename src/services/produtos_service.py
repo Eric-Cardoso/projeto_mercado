@@ -5,11 +5,49 @@ from models import Usuario, Produto, Carrinho
 from repos import repo_produtos
 from schemas.schema_produto import AdicionarProduto, AtualizarProdutoParcial
 from services.carrinho_service import solicitar_carrinho
+from datetime import datetime, timezone
 
 def verificar_desconto(produto: Produto) -> None:
     # Verifica se o desconto é um valor nulo
     if produto.desconto is None:
         produto.desconto = 0
+    
+def aplicar_desconto(produto: Produto):
+    # Pega o dia da semana
+    dia_semana = datetime.weekday(datetime.now(timezone.utc))
+
+    # Verifica se é segunda-feira e se a categoria do produto é refrigerados
+    if dia_semana == 0 and produto.categoria == 'refrigerados':
+        # Calcula o desconto
+        produto.desconto = (produto.preco_unitario * 0.2 ) * produto.quantidade
+    
+    # Verifica se é terça-feira e se a categoria do produto é hortifruti
+    elif dia_semana == 1 and produto.categoria == 'hortifruti':
+        # Calcula o desconto
+        produto.desconto = (produto.preco_unitario * 0.5) * produto.quantidade
+
+    # Verifica se é quarta-feira e se a categoria do produto é açougue
+    elif dia_semana == 2 and produto.categoria == 'açougue':
+        # Calcula o desconto
+        produto.desconto = (produto.preco_unitario * 0.3) * produto.quantidade
+    
+    # Verifica se é quinta-feira e se a categoria do produto é padaria
+    elif dia_semana == 3 and produto.categoria == 'padaria':
+        # Calcula o desconto
+        produto.desconto = (produto.preco_unitario * 0.4) * produto.quantidade
+    
+    # Verifica se é sexta-feira e se a categoria do produto é bebidas
+    elif dia_semana == 4 and produto.categoria == 'bebidas':
+        # Calcula o desconto
+        produto.desconto = (produto.preco_unitario * 0.5) * produto.quantidade
+    
+    # Verifica se é sabado
+    elif dia_semana == 5:
+        # Calcula o desconto
+        produto.desconto = (produto.preco_unitario * 0.2) * produto.quantidade
+
+    return produto
+    
 
 def adicionar_produto(
         dados: AdicionarProduto, 
@@ -36,7 +74,11 @@ def adicionar_produto(
     # Pega os dados em forma de objeto
     db_produto = Produto(**db_dados)
 
+    # Verifica se o desconto ta vindo nulo
     verificar_desconto(produto=db_produto)
+
+    # Calcula o desconto do produto
+    aplicar_desconto(produto=db_produto)
 
     # Adiciona o produto ao carrinho
     db_carrinho.produtos.append(db_produto)
@@ -169,6 +211,9 @@ def atualizar_produto(
     for campo, valor in db_dados.items():
         setattr(db_produto, campo, valor)
 
+    # Calcula o desconto do produto
+    aplicar_desconto(produto=db_produto)
+
     # Calcula o valor total do preço do produto
     db_carrinho.calcular_preco()
 
@@ -222,6 +267,9 @@ def atualizar_produto_parcial(
     # Atualiza os dados do produto
     for campo, valor in db_dados.items():
         setattr(db_produto, campo, valor)
+
+    # Calcula o desconto do produto
+    aplicar_desconto(produto=db_produto)
 
     # Calcula o valor total do preço do produto
     db_carrinho.calcular_preco()
