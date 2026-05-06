@@ -1,6 +1,8 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Float
+from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+
 from core.configuracoes import Base
+
 
 # Criar uma tabela no banco e configurar ela
 class Usuario(Base):
@@ -14,6 +16,7 @@ class Usuario(Base):
     senha = Column(String, nullable=False)
     ativo = Column(Boolean, nullable=False, default=True)
     admin = Column(Boolean, nullable=False, default=False)
+
 
 # Criar uma tabela no banco e configurar ela
 class Carrinho(Base):
@@ -29,12 +32,14 @@ class Carrinho(Base):
     quantidade_produtos = Column(Integer, nullable=False, default=0)
     produtos = relationship('Produto', cascade='all, delete')
 
+    # Calcular o preço do produto
     def calcular_preco(self):
         self.preco_total = sum(
-                produto.quantidade * produto.preco_unitario - produto.desconto
-                for produto in self.produtos
+            produto.quantidade * produto.preco_unitario - produto.desconto
+            for produto in self.produtos
         )
-    
+
+    # Calcula o desconto do produto
     def calcular_desconto(self):
         self.desconto_total = sum(
             produto.desconto for produto in self.produtos
@@ -54,6 +59,3 @@ class Produto(Base):
     categoria = Column(String, nullable=False)
     preco_unitario = Column(Float, nullable=False, default=0)
     desconto = Column(Float, nullable=False, default=0)
-
-
- 

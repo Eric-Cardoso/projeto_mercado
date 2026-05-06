@@ -1,27 +1,27 @@
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
-from models import Usuario, Carrinho, Produto
+
+from models import Carrinho, Produto, Usuario
 from repos import repo_carrinho
 from schemas.schema_carrinho import ListarCarrinho
+
 
 def solicitar_carrinho(usuario: Usuario, sessao: Session) -> Carrinho:
 
     # Cria um carrinho para o usuário logado
-    db_carrinho = Carrinho(id_usuario = usuario.id)
+    db_carrinho = Carrinho(id_usuario=usuario.id)
 
     # Adiciona o carrinho ao banco e salva
     repo_carrinho.criar(carrinho=db_carrinho, sessao=sessao)
 
     return db_carrinho
 
+
 def listar_carrinho(
-        usuario: Usuario, 
-        sessao: Session, 
-        offset: int, 
-        limit: int
-    ) -> ListarCarrinho:
-    
+    usuario: Usuario, sessao: Session, offset: int, limit: int
+) -> ListarCarrinho:
+
     # Tenta pegar o carrinho do usuario logado
     db_carrinho = sessao.scalar(
         select(Carrinho).where(Carrinho.id_usuario == usuario.id)
@@ -30,10 +30,11 @@ def listar_carrinho(
     # Verifica se o carrinho foi encontrado
     if not db_carrinho:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail='Carrinho não encontrado. Adicione um produto para criar um.'
-        )
-    
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=('Carrinho não encontrado. '
+            'Adicione um produto para criar um.',
+        ))
+
     # Pega todos os produtos existentes no banco
     db_produtos = sessao.scalars(
         select(Produto)
@@ -41,25 +42,20 @@ def listar_carrinho(
         .offset(offset=offset)
         .limit(limit=limit)
     ).all()
-    
+
     # Quantidade de produtos que tem no carrinho
     db_carrinho.quantidade_produtos = len(db_produtos)
 
     # Atualiza o status do carrinho e salva
     repo_carrinho.atualizar(carrinho=db_carrinho, sessao=sessao)
-    
-    return {
-        'carrinho': db_carrinho,
-        'produtos': db_produtos
-    }
+
+    return {'carrinho': db_carrinho, 'produtos': db_produtos}
+
 
 def cancelar_compra(
-        usuario: Usuario, 
-        sessao: Session, 
-        offset: int, 
-        limit: int
-    ) -> ListarCarrinho:
-    
+    usuario: Usuario, sessao: Session, offset: int, limit: int
+) -> ListarCarrinho:
+
     # Tenta pegar o carrinho do usuario logado
     db_carrinho = sessao.scalar(
         select(Carrinho).where(Carrinho.id_usuario == usuario.id)
@@ -68,10 +64,11 @@ def cancelar_compra(
     # Verifica se o carrinho foi encontrado
     if not db_carrinho:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail='Carrinho não encontrado. Adicione um produto para criar um.'
-        )
-    
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=('Carrinho não encontrado. '
+            'Adicione um produto para criar um.',
+        ))
+
     # Pega todos os produtos existentes no banco
     db_produtos = sessao.scalars(
         select(Produto)
@@ -79,7 +76,7 @@ def cancelar_compra(
         .offset(offset=offset)
         .limit(limit=limit)
     ).all()
-    
+
     # Quantidade de produtos que tem no carrinho
     db_carrinho.quantidade_produtos = len(db_produtos)
 
@@ -88,19 +85,14 @@ def cancelar_compra(
 
     # Atualiza o status do carrinho e salva
     repo_carrinho.atualizar(carrinho=db_carrinho, sessao=sessao)
-    
-    return {
-        'carrinho': db_carrinho,
-        'produtos': db_produtos
-    }
+
+    return {'carrinho': db_carrinho, 'produtos': db_produtos}
+
 
 def finalizar_compra(
-        usuario: Usuario, 
-        sessao: Session, 
-        offset: int, 
-        limit: int
-    ) -> ListarCarrinho:
-    
+    usuario: Usuario, sessao: Session, offset: int, limit: int
+) -> ListarCarrinho:
+
     # Tenta pegar o carrinho do usuario logado
     db_carrinho = sessao.scalar(
         select(Carrinho).where(Carrinho.id_usuario == usuario.id)
@@ -109,10 +101,11 @@ def finalizar_compra(
     # Verifica se o carrinho foi encontrado
     if not db_carrinho:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail='Carrinho não encontrado. Adicione um produto para criar um.'
-        )
-    
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=('Carrinho não encontrado. '
+            'Adicione um produto para criar um.',
+        ))
+
     # Pega todos os produtos existentes no banco
     db_produtos = sessao.scalars(
         select(Produto)
@@ -120,7 +113,7 @@ def finalizar_compra(
         .offset(offset=offset)
         .limit(limit=limit)
     ).all()
-    
+
     # Quantidade de produtos que tem no carrinho
     db_carrinho.quantidade_produtos = len(db_produtos)
 
@@ -129,8 +122,5 @@ def finalizar_compra(
 
     # Atualiza o status do carrinho e salva
     repo_carrinho.atualizar(carrinho=db_carrinho, sessao=sessao)
-    
-    return {
-        'carrinho': db_carrinho,
-        'produtos': db_produtos
-    }
+
+    return {'carrinho': db_carrinho, 'produtos': db_produtos}

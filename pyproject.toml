@@ -1,10 +1,25 @@
 [project]
-name = "projeto-mercado"
-version = "0.1.0"
-description = "API REST de mercado para gerenciamento de produtos, construída com FastAPI, SQLite e Redis, implementando cache, filtros, paginação e otimização de desempenho."
+name = 'projeto-mercado'
+
+version = '0.1.0'
+
+description = '''api rest para gerenciamento de produtos de mercado, 
+desenvolvida com fastapi e sqlite, com autenticação jwt, hash de senhas 
+e validação de força de senha com password_strength, 
+além de paginação e controle de acesso por usuário.'''
+
 authors = [
-{name = "Eric", email = "ericjc16oficial@gmail.com"}
+{name = 'Eric', email = 'ericjc16oficial@gmail.com'}
 ]
 
-[tool.taskipy.tasks]
-run = 'fastapi dev app.py'
+[tool.ruff]
+line-length = 79
+extend-exclude = ['migrations', '__pycache__', 'venv']
+
+[tool.ruff.lint]
+preview = true
+select = ['I', 'F', 'E', 'W', 'PL', 'PT']
+
+[tool.ruff.format]
+preview = true
+quote-style = 'single'

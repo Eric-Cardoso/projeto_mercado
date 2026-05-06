@@ -1,125 +1,115 @@
-from fastapi import APIRouter, status, Depends, Response
-from services import produtos_service
-from dependencias import sessao, verificar_token
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.orm import Session
-from models import Usuario, Produto
-from schemas.schema_produto import (
-    ProdutoPublico, 
-    AdicionarProduto, 
-    ListarProdutos,
-    AtualizarProdutoParcial
-)
 
+from dependencias import sessao, verificar_token
+from models import Produto, Usuario
+from schemas.schema_produto import (
+    AdicionarProduto,
+    AtualizarProdutoParcial,
+    ListarProdutos,
+    ProdutoPublico,
+)
+from services import produtos_service
 
 # Configurar a rota de produtos
 produtos_rota = APIRouter(prefix='/produtos', tags=['produtos'])
+
 
 @produtos_rota.get('/')
 def produtos_principal():
     return {'status': 'produtos ok'}
 
+
 @produtos_rota.post(
-    path='/adicionar', 
-    response_model=ProdutoPublico, 
-    status_code=status.HTTP_201_CREATED
+    path='/adicionar',
+    response_model=ProdutoPublico,
+    status_code=status.HTTP_201_CREATED,
 )
 def adicionar_produto(
     dados: AdicionarProduto,
-    usuario: Usuario = Depends(verificar_token), 
-    sessao: Session = Depends(sessao)
+    usuario: Usuario = Depends(verificar_token),
+    sessao: Session = Depends(sessao),
 ) -> Produto:
-    
+
     return produtos_service.adicionar_produto(
-        dados=dados, 
-        usuario=usuario, 
-        sessao=sessao
-)
+        dados=dados, usuario=usuario, sessao=sessao
+    )
+
 
 @produtos_rota.get(
-    path='/me', 
-    response_model=ListarProdutos, 
-    status_code=status.HTTP_200_OK
+    path='/me', response_model=ListarProdutos, status_code=status.HTTP_200_OK
 )
 def listar_produtos(
-    usuario: Usuario = Depends(verificar_token), 
-    sessao: Session =  Depends(sessao),
+    usuario: Usuario = Depends(verificar_token),
+    sessao: Session = Depends(sessao),
     offset: int = 0,
-    limit: int = 100
+    limit: int = 100,
 ) -> list[dict]:
-    
+
     return produtos_service.listar_produtos(
-        usuario=usuario, 
-        sessao=sessao, 
-        offset=offset, 
-        limit=limit
-)
+        usuario=usuario, sessao=sessao, offset=offset, limit=limit
+    )
+
 
 @produtos_rota.get(
-    path='/{id_produto}', 
-    response_model=ProdutoPublico, 
-    status_code=status.HTTP_200_OK
+    path='/{id_produto}',
+    response_model=ProdutoPublico,
+    status_code=status.HTTP_200_OK,
 )
 def listar_produto(
-    id_produto: int, 
-    usuario: Usuario = Depends(verificar_token), 
-    sessao: Session = Depends(sessao)
+    id_produto: int,
+    usuario: Usuario = Depends(verificar_token),
+    sessao: Session = Depends(sessao),
 ) -> Produto:
-    
+
     return produtos_service.listar_produto(
-        id_produto=id_produto, 
-        usuario=usuario, 
-        sessao=sessao
-)
+        id_produto=id_produto, usuario=usuario, sessao=sessao
+    )
+
 
 @produtos_rota.put(
-    path='/{id_produto}', 
-    response_model=ProdutoPublico, 
-    status_code=status.HTTP_200_OK
+    path='/{id_produto}',
+    response_model=ProdutoPublico,
+    status_code=status.HTTP_200_OK,
 )
 def atualizar_produto(
-    id_produto: int, 
-    dados: AdicionarProduto, 
-    usuario: Usuario = Depends(verificar_token), 
-    sessao: Session = Depends(sessao)
+    id_produto: int,
+    dados: AdicionarProduto,
+    usuario: Usuario = Depends(verificar_token),
+    sessao: Session = Depends(sessao),
 ) -> Produto:
-    
+
     return produtos_service.atualizar_produto(
-        dados=dados, 
-        id_produto=id_produto, 
-        usuario=usuario, 
-        sessao=sessao
-)
+        dados=dados, id_produto=id_produto, usuario=usuario, sessao=sessao
+    )
+
 
 @produtos_rota.patch(
-        path='/parcial/{id_produto}', 
-        response_model=ProdutoPublico, 
-        status_code=status.HTTP_200_OK
+    path='/parcial/{id_produto}',
+    response_model=ProdutoPublico,
+    status_code=status.HTTP_200_OK,
 )
 def atualizar_produto_parcial(
-        id_produto: int, 
-        dados: AtualizarProdutoParcial, 
-        usuario: Usuario = Depends(verificar_token), 
-        sessao: Session = Depends(sessao)
+    id_produto: int,
+    dados: AtualizarProdutoParcial,
+    usuario: Usuario = Depends(verificar_token),
+    sessao: Session = Depends(sessao),
 ) -> Produto:
-    
+
     return produtos_service.atualizar_produto_parcial(
-        id_produto=id_produto, 
-        dados=dados, 
-        usuario=usuario, 
-        sessao=sessao)
+        id_produto=id_produto, dados=dados, usuario=usuario, sessao=sessao
+    )
+
 
 @produtos_rota.delete(
-    path='/{id_produto}', 
-    status_code=status.HTTP_204_NO_CONTENT
+    path='/{id_produto}', status_code=status.HTTP_204_NO_CONTENT
 )
 def deletar_produto(
-    id_produto: int, 
-    usuario: Usuario = Depends(verificar_token), 
-    sessao: Session = Depends(sessao)
+    id_produto: int,
+    usuario: Usuario = Depends(verificar_token),
+    sessao: Session = Depends(sessao),
 ) -> Response:
-    
+
     return produtos_service.deletar_produto(
-        id_produto=id_produto, 
-        usuario=usuario, 
-        sessao=sessao
+        id_produto=id_produto, usuario=usuario, sessao=sessao
     )
