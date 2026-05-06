@@ -167,11 +167,11 @@ pip install -r requirements.txt
 ## ⚙️ Execução do projeto
 
 ```bash
-# Rodar as migrations (na raiz do projeto)
-alembic upgrade head
-
 # Acessar a pasta src
 cd src
+
+# Rodar as migrations (na raiz do projeto)
+alembic upgrade head
 
 # Iniciar o servidor
 fastapi dev app.py
