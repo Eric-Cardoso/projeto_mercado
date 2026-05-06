@@ -15,6 +15,10 @@ git clone https://github.com/Eric-Cardoso/projeto_mercado.git
 # Acessar a pasta do projeto
 cd projeto_mercado
 
+# Configurar variáveis de ambiente
+cp .env-example .env
+# preencher o .env com suas configurações
+
 # Criar o ambiente virtual
 python -m venv venv
 
