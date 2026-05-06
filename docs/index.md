@@ -138,7 +138,14 @@ cp .env-example .env
 # preencher o .env com suas configurações
 
 # Criar o ambiente virtual
+
+# Linux / WSL / macOS
+python3 -m venv venv
+
+# Windows (PowerShell / CMD)
 python -m venv venv
+# ou
+py -m venv venv
 
 # Ativar o ambiente virtual
 
